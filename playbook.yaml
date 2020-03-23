@@ -1,0 +1,80 @@
+-  hosts: all
+   become: yes
+   tasks:
+     -  name: fail if unsupported os
+        fail:
+          msg: This playbook runs only on  Redhat
+        when: ansible_facts['os_family'] != "RedHat"
+     -  name: check iwashere1 exists
+        stat:
+          path: /tmp/iwashere1.txt
+        register: iwashere1
+     -  name: check iwashere2 exists
+        stat:
+          path: /tmp/iwashere2.txt
+        register: iwashere2
+     -  name: check iwashere3 exists
+        stat:
+          path: /tmp/iwashere3.txt
+        register: iwashere3
+     -  name: check iwashere4 exists
+        stat:
+          path: /tmp/iwashere4.txt
+        register: iwashere4
+     -  name: check iwashere5 exists
+        stat:
+          path: /tmp/iwashere5.txt
+        register: iwashere5
+     -  name: Prerequisite for the fresh installation of Bahmni
+        shell:
+          cmd: yum install -y https://kojipkgs.fedoraproject.org//packages/zlib/1.2.11/19.fc30/x86_64/zlib-1.2.11-19.fc30.x86_64.rpm
+        notify:
+          - create flag1
+        when: iwashere1.stat.exists == False     
+     -  name: Install the bahmni command line program
+        shell:
+          cmd: yum install https://dl.bintray.com/bahmni/rpm/rpms/bahmni-installer-0.92-147.noarch.rpm
+        notify:
+          - create flag1
+        when: iwashere1.stat.exists == False     
+     -  name: Now setup a configuration file for bahmni command in /etc/bahmni-installer
+        shell:
+          cmd: curl -L https://tinyurl.com/yyoj98df >> /etc/bahmni-installer/setup.yml
+        notify:
+          - create flag1
+        when: iwashere1.stat.exists == False     
+     -  name: Set the inventory file name to local in BAHMNI_INVENTORY environment variable
+        shell:
+          cmd: echo "export BAHMNI_INVENTORY=local" >> ~/.bashrc
+        notify:
+          - create flag1
+        when: iwashere1.stat.exists == False     
+     -  name: install bahmni
+        shell:
+          cmd: bahmni install
+        notify:
+          - create flag1
+        when: iwashere1.stat.exists == False     
+   handlers:
+     -  name: create flag1
+        file: 
+          path: "/tmp/iwashere1.txt"
+          state: touch
+     -  name: create flag2
+        file:
+          path: "/tmp/iwashere2.txt"
+          state: touch     
+     -  name: create flag3
+        file:
+          path: "/tmp/iwashere3.txt"
+          state: touch     
+     -  name: create flag4
+        file:
+          path: "/tmp/iwashere4.txt"
+          state: touch     
+     -  name: create flag5
+        file:
+          path: "/tmp/iwashere5.txt"
+          state: touch     
+
+     
